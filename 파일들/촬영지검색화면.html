@@ -1,0 +1,170 @@
+<!doctype html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>검색화면</title>
+<link rel="stylesheet" href="css/test2.css">
+<style>
+</style>
+</head>
+<body onload="restSearch()">
+    <select id="list" style="text-align: center;">선택
+    <option id="title">작품명</option>
+    <option id="address">지역</option>
+    </select>
+    <input type="text" onfocus="this.value=''; return true" value="검색어를 입력하세요." id="sch">
+
+    <button type="button" onclick="sel()">검색</button>
+    <br>
+    <div class="container" id="table_div">
+      <table id="table_m">
+        <tr>
+          <th scope="col" >작품명</td>
+          <th scope="col" >주소</td>
+        </tr>
+        <tr>
+          <td onClick="data(0)" id="tdtitle0"></td>
+        </tr>
+      </table>
+    </div>
+<script>
+  listA=[];
+  total_list=[];
+  
+  function main_table(){
+    let loc_search = [];
+    loc_search = JSON.parse(localStorage.getItem("메인검색값"));
+    loc = loc_search[0].location;
+    main_schw = loc_search[0].word;
+    
+    if(loc!=null&&main_schw!=null){
+      for(let i=0; i<total_list.length; i++){
+        if(total_list[i][1].indexOf(loc) != -1){
+          if (total_list[i].indexOf(main_schw) != -1){
+            add = total_list[i][1] + " " + total_list[i][2];
+            if(total_list[i][3]!=null){
+              add += " " + total_list[i][3]
+            }
+            if(total_list[i][4]!=null){
+              add += " " + total_list[i][4]
+            }
+            if(total_list[i][5]!=null){
+              add += " " + total_list[i][5]
+            }
+            listA.push({title:total_list[i][0], address:add})
+          }
+        }
+      show();
+      }
+    }
+  }
+  
+
+  
+  function f(){
+    let obj = document.getElementById("table_div");
+  }
+
+  function sel(){
+    let listc = document.getElementById("list");
+    let sch = document.getElementById("sch");
+    let select = listc.options[listc.selectedIndex].value;
+    let schw = sch.value;
+    let add ='';
+    listA = []; //나올 리스트 초기화
+
+    for(let i=0; i<total_list.length; i++){
+      //add = total_list[i][1] + total_list[i][2];
+      if(select=='작품명'){
+        if (total_list[i][0].indexOf(schw) != -1) {
+          add = total_list[i][1] + " " + total_list[i][2];
+          if(total_list[i][3]!=null){
+            add += " " + total_list[i][3]
+          }
+          if(total_list[i][4]!=null){
+            add += " " + total_list[i][4]
+           }
+          if(total_list[i][5]!=null){
+            add += " " + total_list[i][5]
+          }
+          listA.push({title:total_list[i][0],address:add})
+        } 
+      }
+      else if(select=='지역'){
+          add = total_list[i][1] + " " + total_list[i][2];
+          if(total_list[i][3]!=null){
+            add += " " + total_list[i][3]
+          }
+          if(total_list[i][4]!=null){
+            add += " " + total_list[i][4]
+          }
+          if(total_list[i][5]!=null){
+            add += " " + total_list[i][5]
+          }
+          
+          if (add.indexOf(schw) != -1){
+            listA.push({title:total_list[i][0], address:add})
+          }
+      }
+    }
+    show();
+  }
+  function show(){
+    
+    let plist = document.getElementById("table_m");
+    plist.innerHTML = "<tr><th>작품명</td><th>주소</td></tr>";
+    palce = "";
+    for(let i=0; i<listA.length; i++){
+      palce += "<tr>";
+      palce += "<td onClick= data("+i+") value= \"\" id= \"tdtitle"+ i +"\">" + listA[i].title+"</td><td id=\"tdplace"+i+"\" value=\"\">" + listA[i].address+ "</td>";
+      palce += "</tr>";
+    }
+    plist.innerHTML += palce;
+  }
+
+  function data(idx){
+    let t = document.getElementById("tdtitle"+idx);
+    let p = document.getElementById("tdplace"+idx);
+    const inputData = [
+      {
+        title: t.innerText,
+        address: p.innerText
+      }
+    ];
+    localStorage.setItem("검색값", JSON.stringify(inputData));
+    location.href = 'http://localhost:8081/detail';
+
+  }
+
+  totla_list = [];
+
+  function restSearch(){
+    let search_list = []
+    search_list = JSON.parse(localStorage.getItem("검색값"));
+    location.innerHTML = search_list[0].title;
+
+    fetch('http://192.168.219.100:3000/mediaplace',
+    {
+      method: 'GET',
+      headers : {
+        'Content-type':'application/json; charset-UTF-8',
+        'Access-Control-Allow-Origin':'*',
+      },
+    })
+    .then((res) => { return res.json()})
+    .then((arr) => {
+      for(let i=0; i<arr["data"].length; i++){
+        total_list.push([]);
+        for(let j=0; j<arr["data"][i].length; j++){
+          total_list[i].push(arr["data"][i][j]);
+        }
+      }
+      main_table();
+      console.log(arr)
+    });
+  }
+
+</script>
+</body>
+</html>
