@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>마이페이지 - 즐겨찾기</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 10px; border-bottom: 1px solid #ccc; cursor: pointer; }
+    button { margin-top: 20px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h2>내 즐겨찾기 목록</h2>
+  <ul id="favorites-list"></ul>
+  <button onclick="clearFavorites()">즐겨찾기 전체 삭제</button>
+
+  <script>
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem('favorites') || '[]');
+    }
+
+    function renderFavorites() {
+      const list = document.getElementById('favorites-list');
+      list.innerHTML = '';
+      const favorites = getFavorites();
+
+      if (favorites.length === 0) {
+        list.innerHTML = '<li>즐겨찾기가 없습니다.</li>';
+        return;
+      }
+
+      favorites.forEach(title => {
+        const li = document.createElement('li');
+        li.textContent = title;
+        li.onclick = () => alert(title + ' 클릭됨! (상세페이지 연결 가능)');
+        list.appendChild(li);
+      });
+    }
+
+    function clearFavorites() {
+      if (confirm('즐겨찾기를 모두 삭제하시겠습니까?')) {
+        localStorage.removeItem('favorites');
+        renderFavorites();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', renderFavorites);
+  </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>검색화면</title>
+  <link rel="stylesheet" href="css/test2.css">
+</head>
+<body onload="restSearch()">
+
+  <div style="position: fixed; top: 20px; left: 0px; font-size: 30px; font-weight: bold; color: #177b32;">
+    <a href="/" style="color: #b90909; text-decoration: none;  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif">Moodra</a>
+  </div>
+
+  <!-- 로그인/로그아웃 버튼 -->
+  <div id="auth-container" style="position: fixed; top: 20px; right: 40px;">
+    <button id="auth-btn"></button>
+  </div>
+
+
+  <div class="wrap">
+    <!-- 검색바 -->
+    <div class="search-bar">
+      <select id="list">
+        <option id="title">작품명</option>
+        <option id="address">지역</option>
+      </select>
+      <input type="text" onfocus="this.value=''; return true" value="검색어를 입력하세요." id="sch">
+      <button type="button" onclick="sel()">검색</button>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="container" id="table_div">
+      <table id="table_m">
+        <tr>
+          <th scope="col">작품명</th>
+          <th scope="col">주소</th>
+          
+        </tr>
+        <tr>
+          <td onClick="data(0)" id="tdtitle0"></td>
+        </tr>
+
+      </table>
+    </div>
+  </div>
+
+<script>
+  listA = [];
+  total_list = [];
+
+  function main_table() {
+    let loc_search = JSON.parse(localStorage.getItem("메인검색값"));
+    let loc = loc_search[0].location;
+    let main_schw = loc_search[0].word;
+
+    if (loc && main_schw) {
+      for (let i = 0; i < total_list.length; i++) {
+        if (total_list[i][1].includes(loc) && total_list[i].some(e => e.includes(main_schw))) {
+          let add = total_list[i].slice(1, 6).filter(Boolean).join(" ");
+          listA.push({ title: total_list[i][0], address: add });
+        }
+      }
+      show();
+    }
+  }
+
+  function sel() {
+    let select = document.getElementById("list").value;
+    let schw = document.getElementById("sch").value;
+    listA = [];
+
+    for (let i = 0; i < total_list.length; i++) {
+      let add = total_list[i].slice(1, 6).filter(Boolean).join(" ");
+      if (select == '작품명' && total_list[i][0].includes(schw)) {
+        listA.push({ title: total_list[i][0], address: add });
+      } else if (select == '지역' && add.includes(schw)) {
+        listA.push({ title: total_list[i][0], address: add });
+      }
+    }
+    show();
+  }
+
+  function show() {
+    let plist = document.getElementById("table_m");
+    plist.innerHTML = "<tr><th>작품명</th><th>주소</th></tr>";
+    listA.forEach((item, i) => {
+      plist.innerHTML += `<tr><td onClick="data(${i})" id="tdtitle${i}">${item.title}</td><td id="tdplace${i}">${item.address}</td></tr>`;
+    });
+  }
+
+  function data(idx) {
+    let t = document.getElementById("tdtitle" + idx);
+    let p = document.getElementById("tdplace" + idx);
+    const inputData = [{ title: t.innerText, address: p.innerText }];
+    localStorage.setItem("검색값", JSON.stringify(inputData));
+    location.href = 'http://localhost:8081/detail';
+  }
+
+  function restSearch() {
+    fetch('http://192.168.219.100:3000/mediaplace', {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
+    .then(res => res.json())
+    .then(arr => {
+      arr["data"].forEach(row => total_list.push([...row]));
+      main_table();
+    });
+  }
+
+
+  const authBtn = document.getElementById("auth-btn");
+
+function updateAuthButton() {
+  if (localStorage.getItem("loggedIn")) {
+    authBtn.textContent = "로그아웃";
+    authBtn.onclick = () => {
+      localStorage.removeItem("loggedIn");
+      alert("로그아웃되었습니다.");
+      location.href = "login.html";
+    };
+  } else {
+    authBtn.textContent = "로그인";
+    authBtn.onclick = () => {
+      location.href = "login.html";
+    };
+  }
+}
+
+updateAuthButton();
+
+</script>
+</body>
+</html>
