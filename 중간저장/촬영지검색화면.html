@@ -7,8 +7,13 @@
 </head>
 <body onload="restSearch()">
 
-  <div style="position: fixed; top: 10px; left: 10px; font-size: 24px; font-weight: bold; color: #177b32;">
-    <a href="/" style="color: #177b32; text-decoration: none;">Moodra</a>
+  <div style="position: fixed; top: 20px; left: 0px; font-size: 30px; font-weight: bold; color: #177b32;">
+    <a href="/" style="color: #b90909; text-decoration: none;  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif">Moodra</a>
+  </div>
+
+  <!-- 로그인/로그아웃 버튼 -->
+  <div id="auth-container" style="position: fixed; top: 20px; right: 40px;">
+    <button id="auth-btn"></button>
   </div>
 
 
@@ -29,11 +34,18 @@
         <tr>
           <th scope="col">작품명</th>
           <th scope="col">주소</th>
+          
         </tr>
         <tr>
-          <td onClick="data(0)" id="tdtitle0">은행나무침대촬영지</td>
-           <td>경상남도 거제시 남부면 다포리 58-10</td>
+          <td onClick="data(0)" id="tdtitle0">엽기적인그녀촬영지</td>
+          <td>강원특별자치도 정선군 신동읍 조동리 499-11</td>
         </tr>
+
+         <tr>
+          <td onClick="data(0)" id="tdtitle0">엽기적인그녀촬영지</td>
+          <td>부산광역시 사하구 하단동 1207-1</td>
+        </tr>
+
       </table>
     </div>
   </div>
@@ -104,6 +116,28 @@
       main_table();
     });
   }
+
+
+  const authBtn = document.getElementById("auth-btn");
+
+function updateAuthButton() {
+  if (localStorage.getItem("loggedIn")) {
+    authBtn.textContent = "로그아웃";
+    authBtn.onclick = () => {
+      localStorage.removeItem("loggedIn");
+      alert("로그아웃되었습니다.");
+      location.href = "login.html";
+    };
+  } else {
+    authBtn.textContent = "로그인";
+    authBtn.onclick = () => {
+      location.href = "login.html";
+    };
+  }
+}
+
+updateAuthButton();
+
 </script>
 </body>
 </html>
